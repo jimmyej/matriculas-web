@@ -150,8 +150,7 @@ const StudentList = ({ rows, columns, handleDeleteById }) => {
 
                     <DeletStudentModal
                         open={openDeleteModal}
-                        selectedStudent={selectedStudent}
-                        setSelectedStudent={setSelectedStudent}
+                        selectedStudent={selectedStudent}   
                         handleClose={handleCloseDeleteModal}
                         handleAccept={handleAcceptDeleteModal}
                     />
