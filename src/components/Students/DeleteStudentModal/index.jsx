@@ -1,25 +1,25 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { DialogContentText } from '@mui/material';
 import React from 'react';
+import CustomDialog from '../../../commons/CustomDialog';
 
-const DeletStudentModal = ({open, name, handleClose, handleAccept}) => {
+const DeletStudentModal = ({open, selectedStudent, setSelectedStudent, handleClose, handleAccept}) => {
 
+    const BodyComponent = () => {
+        return (
+            <DialogContentText>
+                Estas seguro que quiere eliminar el estudiante {selectedStudent.firstName}? 
+            </DialogContentText>
+        )
+    }
+    
     return (
-        <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>
-                Delete student
-            </DialogTitle>
-
-            <DialogContent>
-                <DialogContentText>
-                    Estas seguro que quiere eliminar el estudiante {name}? 
-                </DialogContentText>
-            </DialogContent>
-
-            <DialogActions>
-                <Button onClick={handleClose}>Cancelar</Button>
-                <Button onClick={handleAccept}>Aceptar</Button>
-            </DialogActions>
-        </Dialog>
+        <CustomDialog
+            open={open}
+            title="Delete student"
+            bodyComponent={<BodyComponent/>}
+            handleClose={handleClose}
+            handleAccept={handleAccept}
+        />
     )
 }
 
