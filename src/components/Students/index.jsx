@@ -17,6 +17,36 @@ const Students = () => {
         }
     }
 
+    const createStudent = async(student) => {
+        try {
+
+            const res = await apiClient.post("/v1/students", student);
+            const result = res.data
+            console.log(result);
+            setTimeout(() => {
+                getAllStudents()
+            }, 500)
+            
+        } catch (err) {
+            console.log(err.response?.data || err);
+        }
+    }
+
+    const editStudent = async(student) => {
+        try {
+
+            const res = await apiClient.put("/v1/students/"+student.id, student);
+            const result = res.data
+            console.log(result);
+            setTimeout(() => {
+                getAllStudents()
+            }, 500)
+            
+        } catch (err) {
+            console.log(err.response?.data || err);
+        }
+    }
+
     const deleteStudentById = async(id) => {
         try {
             const res = await apiClient.delete("/v1/students/"+id);
@@ -31,10 +61,6 @@ const Students = () => {
     useEffect(() => {
         getAllStudents()
     }, [])
-
-/*     useEffect(() => {
-        console.log("deleting: "+isDeleting)
-    }, [isDeleting]) */
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 70, align: 'left'},
@@ -62,6 +88,8 @@ const Students = () => {
                 rows={allStudents}
                 columns={columns}
                 handleDeleteById={deleteStudentById}
+                handleCreate={createStudent}
+                handleEdit={editStudent}
             />
         </>
     )

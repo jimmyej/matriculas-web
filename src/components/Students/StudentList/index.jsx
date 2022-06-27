@@ -6,7 +6,7 @@ import EditStudentModal from '../EditStudentModal';
 
 import moment from 'moment';
 
-const StudentList = ({ rows, columns, handleDeleteById }) => {
+const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit }) => {
 
     const [selectedStudent, setSelectedStudent] = useState({});
 
@@ -26,6 +26,7 @@ const StudentList = ({ rows, columns, handleDeleteById }) => {
         const id = selectedStudent.id;
         handleDeleteById(id);
         setOpenDeleteModal(false);
+        setSelectedStudent({});
     };
 
     //Edit modal
@@ -40,11 +41,13 @@ const StudentList = ({ rows, columns, handleDeleteById }) => {
 
     const handleCloseEdit = () => {
         setOpenEdit(false);
+        setSelectedStudent({});
     };
 
-    const handleAcceptEdit = () => {
+    const handleAcceptEdit = (student) => {
+        handleEdit(student)
         setOpenEdit(false);
-        console.log(selectedStudent)
+        setSelectedStudent({});
     };
 
     //Create modal
@@ -54,8 +57,10 @@ const StudentList = ({ rows, columns, handleDeleteById }) => {
         setOpenCreate(false);
     };
 
-    const handleAcceptCreate = () => {
+    const handleAcceptCreate = (student) => {
+        handleCreate(student)
         setOpenCreate(false);
+        setSelectedStudent({});
     };
 
     const handleClickOpenCreateModal = () => {
@@ -124,14 +129,14 @@ const StudentList = ({ rows, columns, handleDeleteById }) => {
                                         <TableCell align="left">{row.lastName}</TableCell>
                                         <TableCell align="left">{row.docType}</TableCell>
                                         <TableCell align="left">{row.docNumber}</TableCell>
-                                        <TableCell align="left">{moment(new Date(row.birthDate)).format('DD/MM/YYYY')}</TableCell>
+                                        <TableCell align="left">{moment(row.birthDate).format('DD/MM/YYYY')}</TableCell>
                                         <TableCell align="left">{row.email}</TableCell>
                                         <TableCell align="left">{row.status?<Icon color="success">toggle_on</Icon>:<Icon color="error">toggle_off</Icon>}</TableCell>
                                         <TableCell align="right">
                                             <IconButton color="primary" aria-label="edit student" component="span" onClick={() => handleClickOpenEditModal(row)}>
                                                 <Icon fontSize="small">edit</Icon>
                                             </IconButton>
-                                            <IconButton color="error" aria-label="delete student" component="span" onClick={() => handleClickOpen(row)}>
+                                            <IconButton color="error" aria-label="delete student" component="span" onClick={() => handleClickOpen(row)} disabled={!row.status}>
                                                 <Icon fontSize="small">delete</Icon>
                                             </IconButton>
                                         </TableCell>
@@ -157,15 +162,15 @@ const StudentList = ({ rows, columns, handleDeleteById }) => {
 
                     <EditStudentModal
                         open={openEdit}
-                        student={student}
                         selectedStudent={selectedStudent}
-                        setSelectedStudent={setSelectedStudent}
+                        //setSelectedStudent={setSelectedStudent}
                         handleClose={handleCloseEdit}
                         handleAccept={handleAcceptEdit}
                     />
 
                     <CreateStudentModal
                         open={openCreate}
+                        //setSelectedStudent={setSelectedStudent}
                         handleClose={handleCloseCreate}
                         handleAccept={handleAcceptCreate}
                     />

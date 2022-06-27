@@ -1,19 +1,46 @@
-import React, { useEffect, useState } from 'react';
-import { FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch, TextField } from '@mui/material';
+import React, { useState } from 'react';
+import { Button, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch, TextField } from '@mui/material';
 import CustomDialog from '../../../commons/CustomDialog';
 import PropTypes from 'prop-types';
+import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import moment from 'moment';
 
-const EditStudentModal = ({open, selectedStudent, setSelectedStudent, handleClose, handleAccept}) => {
+const EditStudentModal = ({open, selectedStudent, handleClose, handleAccept}) => {
 
-    const handleInputChange = (event) => {
-        event.preventDefault();
-        setSelectedStudent({
-            ...selectedStudent,
-            [event.target.name] : event.target.value
-        })
-    }
+    const BodyComponent = ({handleClose, handleAccept}) => {
 
-    const BodyComponent = () => {
+        const [student, setStudent] = useState(selectedStudent);
+        
+        const handleInputChange = (event) => {
+            setStudent({
+                ...student,
+                [event.target.name] : event.target.value
+            })
+        }
+        const handleInputStatusChange = event => {
+            const { name, checked } = event.target;
+            setStudent({ ...student, [name]: checked });
+        };
+
+        const handleInputDateChange = event => {
+            setStudent({ ...student, 'birthDate': event._d });
+        };
+
+        const submitStudent = () => {
+            const newStudent = {
+                id: student.id,
+                firstName: student.firstName,
+                lastName: student.lastName,
+                docType: student.docType,
+                docNumber: student.docNumber,
+                birthDate: moment(student.birthDate).format('yyyy-MM-DD'),
+                email: student.email,
+                status: student.status
+            }
+            handleAccept(newStudent);
+        }
+
         return (
             <>
                 <TextField
@@ -24,7 +51,7 @@ const EditStudentModal = ({open, selectedStudent, setSelectedStudent, handleClos
                     type="text"
                     fullWidth
                     variant="standard"
-                    value={selectedStudent.firstName}
+                    value={student.firstName}
                     onChange={handleInputChange}
                 />
                 <TextField
@@ -35,7 +62,7 @@ const EditStudentModal = ({open, selectedStudent, setSelectedStudent, handleClos
                     type="text"
                     fullWidth
                     variant="standard"
-                    value={selectedStudent.lastName}
+                    value={student.lastName}
                     onChange={handleInputChange}
                 />
                 <FormControl fullWidth variant="standard" >
@@ -44,7 +71,8 @@ const EditStudentModal = ({open, selectedStudent, setSelectedStudent, handleClos
                         labelId="doc-type-select-label"
                         id="doc-type-select"
                         name="docType"
-                        value={selectedStudent.docType}
+                        defaultValue=""
+                        value={student.docType}
                         label="Doc type"
                         variant="standard"
                         onChange={handleInputChange}
@@ -62,9 +90,19 @@ const EditStudentModal = ({open, selectedStudent, setSelectedStudent, handleClos
                     type="number"
                     fullWidth
                     variant="standard"
-                    value={selectedStudent.docNumber}
+                    value={student.docNumber}
                     onChange={handleInputChange}
                 />
+                <LocalizationProvider dateAdapter={AdapterMoment}>
+                    <DesktopDatePicker
+                        label="Birthdate"
+                        inputFormat="yyyy-MM-DD"
+                        name="birthDate"
+                        value={student.birthDate}
+                        onChange={handleInputDateChange}
+                        renderInput={(params) => <TextField {...params} fullWidth variant="standard"/>}
+                    />
+                </LocalizationProvider>
                 <TextField
                     margin="dense"
                     id="email"
@@ -73,20 +111,25 @@ const EditStudentModal = ({open, selectedStudent, setSelectedStudent, handleClos
                     type="text"
                     fullWidth
                     variant="standard"
-                    value={selectedStudent.email}
+                    value={student.email}
                     onChange={handleInputChange}
                 />
                 <FormControlLabel
                     name="status"
                     control={
                         <Switch 
-                            checked={selectedStudent.status}
-                            onChange={handleInputChange}
+                            checked={student.status}
+                            onChange={handleInputStatusChange}
                         />
                     } 
                     label="Status"
                 />
-                {JSON.stringify(selectedStudent)}
+                <FormControl fullWidth variant="standard" >
+                    <div>
+                        <Button  style={{float: 'right'}} onClick={submitStudent}>Aceptar</Button>
+                        <Button  style={{float: 'right'}} onClick={handleClose}>Cancelar</Button>
+                    </div>
+                </FormControl>
             </>
         )
     }
@@ -95,9 +138,10 @@ const EditStudentModal = ({open, selectedStudent, setSelectedStudent, handleClos
         <CustomDialog
             open={open}
             title="Edit student"
-            bodyComponent={<BodyComponent/>}
-            handleClose={handleClose}
-            handleAccept={handleAccept}
+            bodyComponent={
+                <BodyComponent handleClose={handleClose}  handleAccept={handleAccept}/>
+            }
+            hideAction={true}
         />
     )
 
@@ -107,8 +151,7 @@ export default EditStudentModal
 
 EditStudentModal.propTypes = {
     open: PropTypes.bool, 
-    selectedStudent: PropTypes.object, 
-    setSelectedStudent: PropTypes.func,
+    selectedStudent: PropTypes.object,
     handleClose: PropTypes.func,
     handleAccept: PropTypes.func,
 };
