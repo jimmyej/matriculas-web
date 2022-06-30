@@ -1,12 +1,14 @@
-import { Box, Button, Container, FormControl, Icon, IconButton, InputAdornment, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, TextField, Toolbar, Typography } from '@mui/material'
+import { Box, Button, Container, FormControl, FormControlLabel, Icon, IconButton, InputAdornment, Paper, Switch, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, TableSortLabel, TextField, Toolbar, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import CreateStudentModal from '../CreateStudentModal';
 import DeletStudentModal from '../DeleteStudentModal';
 import EditStudentModal from '../EditStudentModal';
 
+import { visuallyHidden } from '@mui/utils';
+
 import moment from 'moment';
 
-const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit }) => {
+const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit, showAll, setShowAll }) => {
 
     const [selectedStudent, setSelectedStudent] = useState({});
 
@@ -31,10 +33,8 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
 
     //Edit modal
     const [openEdit, setOpenEdit] = useState(false);
-    const [student, setStudent] = useState({});
 
     const handleClickOpenEditModal = (row) => {
-        setStudent(row)
         setSelectedStudent(row)
         setOpenEdit(true);
     };
@@ -48,6 +48,16 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
         handleEdit(student)
         setOpenEdit(false);
         setSelectedStudent({});
+    };
+
+    //search
+    const [searchText, setSearchText] = useState("");
+
+    const data = {
+        rows: rows.filter((item) =>
+          item.docNumber.includes(searchText) ||
+          item.birthDate.includes(searchText)
+        ),
     };
 
     //Create modal
@@ -67,11 +77,48 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
         setOpenCreate(true);
     };
 
+    //pagination
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+    
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    //sorting students
+    const [order, setOrder] = useState('desc');
+    const [orderBy, setOrderBy] = useState('updatedAt');
+
+    const descendingComparator = (a, b, orderBy) => {
+        if (b[orderBy] < a[orderBy]) {
+          return -1;
+        }
+        if (b[orderBy] > a[orderBy]) {
+          return 1;
+        }
+        return 0;
+      }
+      
+    const getComparator = (order, orderBy) => {
+        return order === 'desc'
+            ? (a, b) => descendingComparator(a, b, orderBy)
+            : (a, b) => -descendingComparator(a, b, orderBy);
+    }
+
+    const createSortHandler = (property) => (event) => {
+        const isAsc = orderBy === property && order === 'asc';
+        setOrder(isAsc ? 'desc' : 'asc');
+        setOrderBy(property);
+    };
+
     return (
         <>
             <Container maxWidth="lg">
-                <h3>Student List!</h3>
-
                 <Box sx={{ flexGrow: 1 }}>
                     <Toolbar variant="regular" color="primary" style={{ padding: 0}}>
                         <Button 
@@ -81,6 +128,12 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
                             endIcon={<Icon fontSize="small">add</Icon>}>
                             New
                         </Button>
+                        
+                        <FormControlLabel
+                            control={<Switch checked={showAll} onChange={(e) => setShowAll(e.target.checked)} />}
+                            label="Show All"
+                            labelPlacement="start"
+                        />
                         
                         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                             Student List
@@ -98,15 +151,19 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
                                         </InputAdornment>
                                     ),
                                     endAdornment: (
-                                        <InputAdornment position="start">
-                                            <Icon fontSize="small">close</Icon>
-                                        </InputAdornment>
+                                        searchText.length> 0 && (
+                                            <InputAdornment position="start" onClick={() => setSearchText("")} >
+                                                <Icon fontSize="small">close</Icon>
+                                            </InputAdornment>
+                                            )
                                     )
                                 }}
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
                                 variant="standard"
                             />
                         </FormControl>
-                        </Toolbar>
+                    </Toolbar>
                 </Box>
 
                 <Paper elevation={3}>
@@ -116,14 +173,34 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
                             <TableHead>
                                 <TableRow>
                                     {columns.map( (column) =>(
-                                        <TableCell key={column.field} align={column.align}>{column.headerName}</TableCell>
+                                        <TableCell 
+                                            key={column.field} 
+                                            align={column.align}
+                                            sortDirection={orderBy === column.field ? order : false}
+                                            >
+                                                <TableSortLabel
+                                                    active={orderBy === column.field}
+                                                    direction={orderBy === column.field ? order : 'asc'}
+                                                    onClick={createSortHandler(column.field)}
+                                                >
+                                                    {column.headerName}
+                                                    {orderBy === column.field ? (
+                                                        <Box component="span" sx={visuallyHidden}>
+                                                            {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                                                        </Box>
+                                                    ) : null}
+                                                </TableSortLabel>
+                                        </TableCell>
                                     ))}
                                 </TableRow>
                             </TableHead>
 
                             <TableBody>
-                                {rows.map((row) => (
-                                    <TableRow key={row.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} >
+                                {data.rows
+                                    .slice().sort(getComparator(order, orderBy))//sorting
+                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)//pagination
+                                    .map((row) => (
+                                    <TableRow key={row.id} >
                                         <TableCell align="left">{row.id}</TableCell>
                                         <TableCell align="left">{row.firstName}</TableCell>
                                         <TableCell align="left">{row.lastName}</TableCell>
@@ -142,14 +219,31 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
                                         </TableCell>
                                     </TableRow>
                                 ))}
+                                {data.rows.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={9} style={{ textAlign: 'center' }}>
+                                            No records found.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
 
                             <TableFooter>
                                 <TableRow>
-                                    <TableCell colSpan={9} align="center">numero de estudiantes</TableCell>
+                                    <TableCell colSpan={9}>
+                                        <TablePagination
+                                            rowsPerPageOptions={[5, 10, 25]}
+                                            component="div"
+                                            count={data.rows.length}
+                                            rowsPerPage={rowsPerPage}
+                                            page={page}
+                                            onPageChange={handleChangePage}
+                                            onRowsPerPageChange={handleChangeRowsPerPage}
+                                        />
+                                    </TableCell>
                                 </TableRow>
                             </TableFooter>
-
+                            
                         </Table>
                     </TableContainer>
 
@@ -163,14 +257,12 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
                     <EditStudentModal
                         open={openEdit}
                         selectedStudent={selectedStudent}
-                        //setSelectedStudent={setSelectedStudent}
                         handleClose={handleCloseEdit}
                         handleAccept={handleAcceptEdit}
                     />
 
                     <CreateStudentModal
                         open={openCreate}
-                        //setSelectedStudent={setSelectedStudent}
                         handleClose={handleCloseCreate}
                         handleAccept={handleAcceptCreate}
                     />

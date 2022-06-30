@@ -48,7 +48,6 @@ const CreateStudentModal = ({open, handleClose, handleAccept }) => {
                 email: student.email,
                 status: student.status
             }
-            //setSelectedStudent(newStudent);
             handleAccept(newStudent);
             setStudent(initialStudentState)
         }
@@ -65,6 +64,7 @@ const CreateStudentModal = ({open, handleClose, handleAccept }) => {
                     name="firstName"
                     value={student.firstName}
                     onChange={handleInputChange}
+                    required
                 />
                 <TextField
                     margin="dense"

@@ -11,13 +11,12 @@ const EditStudentModal = ({open, selectedStudent, handleClose, handleAccept}) =>
     const BodyComponent = ({handleClose, handleAccept}) => {
 
         const [student, setStudent] = useState(selectedStudent);
-        
-        const handleInputChange = (event) => {
-            setStudent({
-                ...student,
-                [event.target.name] : event.target.value
-            })
-        }
+
+        const handleInputChange = event => {
+            const { name, value } = event.target;
+            setStudent({ ...student, [name]: value });
+        };
+
         const handleInputStatusChange = event => {
             const { name, checked } = event.target;
             setStudent({ ...student, [name]: checked });
@@ -28,6 +27,7 @@ const EditStudentModal = ({open, selectedStudent, handleClose, handleAccept}) =>
         };
 
         const submitStudent = () => {
+            /* Option 1*/
             const newStudent = {
                 id: student.id,
                 firstName: student.firstName,
@@ -39,6 +39,9 @@ const EditStudentModal = ({open, selectedStudent, handleClose, handleAccept}) =>
                 status: student.status
             }
             handleAccept(newStudent);
+
+            /* Option 2*/
+            /* handleAccept({ ...student, 'birthDate': moment(student.birthDate).format('yyyy-MM-DD') }); */
         }
 
         return (

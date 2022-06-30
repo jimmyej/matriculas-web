@@ -6,10 +6,11 @@ import apiClient from "../../http-common";
 const Students = () => {
 
     const [allStudents, setAllStudents] = useState([])
+    const [showAll, setShowAll] = useState(false)
 
     const getAllStudents = async() => {
         try {
-            const res = await apiClient.get("/v1/students");
+            const res = await apiClient.get(`/v1/students?showAll=${showAll}`);
             const result = res.data
             setAllStudents(result);
         } catch (err) {
@@ -19,14 +20,10 @@ const Students = () => {
 
     const createStudent = async(student) => {
         try {
-
-            const res = await apiClient.post("/v1/students", student);
-            const result = res.data
-            console.log(result);
+            await apiClient.post("/v1/students", student);
             setTimeout(() => {
                 getAllStudents()
             }, 500)
-            
         } catch (err) {
             console.log(err.response?.data || err);
         }
@@ -34,14 +31,10 @@ const Students = () => {
 
     const editStudent = async(student) => {
         try {
-
-            const res = await apiClient.put("/v1/students/"+student.id, student);
-            const result = res.data
-            console.log(result);
+            await apiClient.put("/v1/students/"+student.id, student);
             setTimeout(() => {
                 getAllStudents()
             }, 500)
-            
         } catch (err) {
             console.log(err.response?.data || err);
         }
@@ -49,9 +42,7 @@ const Students = () => {
 
     const deleteStudentById = async(id) => {
         try {
-            const res = await apiClient.delete("/v1/students/"+id);
-            const result = res.data
-            console.log(result);
+            await apiClient.delete("/v1/students/"+id);
             getAllStudents()
         } catch (err) {
             console.log(err.response?.data || err);
@@ -60,7 +51,7 @@ const Students = () => {
 
     useEffect(() => {
         getAllStudents()
-    }, [])
+    }, [showAll])
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 70, align: 'left'},
@@ -90,6 +81,8 @@ const Students = () => {
                 handleDeleteById={deleteStudentById}
                 handleCreate={createStudent}
                 handleEdit={editStudent}
+                showAll={showAll}
+                setShowAll={setShowAll}
             />
         </>
     )
