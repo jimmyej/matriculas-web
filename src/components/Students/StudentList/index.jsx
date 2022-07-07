@@ -44,8 +44,8 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
         setSelectedStudent({});
     };
 
-    const handleAcceptEdit = (student) => {
-        handleEdit(student)
+    const handleAcceptEdit = (student, file) => {
+        handleEdit(student, file)
         setOpenEdit(false);
         setSelectedStudent({});
     };
@@ -67,8 +67,8 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
         setOpenCreate(false);
     };
 
-    const handleAcceptCreate = (student) => {
-        handleCreate(student)
+    const handleAcceptCreate = (student, file) => {
+        handleCreate(student, file)
         setOpenCreate(false);
         setSelectedStudent({});
     };
@@ -210,6 +210,9 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
                                         <TableCell align="left">{row.email}</TableCell>
                                         <TableCell align="left">{row.status?<Icon color="success">toggle_on</Icon>:<Icon color="error">toggle_off</Icon>}</TableCell>
                                         <TableCell align="right">
+                                            <IconButton color="secondary" aria-label="view student" component="span">
+                                                <Icon fontSize="small">visibility</Icon>
+                                            </IconButton>
                                             <IconButton color="primary" aria-label="edit student" component="span" onClick={() => handleClickOpenEditModal(row)}>
                                                 <Icon fontSize="small">edit</Icon>
                                             </IconButton>

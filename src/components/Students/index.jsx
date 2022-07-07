@@ -18,20 +18,29 @@ const Students = () => {
         }
     }
 
-    const createStudent = async(student) => {
+    const createStudent = async(student, file = undefined) => {
         try {
-            await apiClient.post("/v1/students", student);
-            setTimeout(() => {
-                getAllStudents()
-            }, 500)
+            await apiClient.post("/v1/students", student)
+            .then(response => {
+                if(file !== undefined) {
+                    uploadStudentPhoto(response.data, file, false)
+                }
+                setTimeout(() => {
+                    getAllStudents()
+                }, 1000)
+            });
+
         } catch (err) {
             console.log(err.response?.data || err);
         }
     }
 
-    const editStudent = async(student) => {
+    const editStudent = async(student, file = undefined) => {
         try {
             await apiClient.put("/v1/students/"+student.id, student);
+            if(file !== undefined) {
+                await uploadStudentPhoto(student, file, true)
+            }
             setTimeout(() => {
                 getAllStudents()
             }, 500)
@@ -47,6 +56,26 @@ const Students = () => {
         } catch (err) {
             console.log(err.response?.data || err);
         }
+    }
+
+    const uploadStudentPhoto = async(student, file, isEditing) => {
+        try {
+            let form_data = new FormData();
+            form_data.append('file', file, "testFileName");
+    
+            await apiClient.post(buildUploadPath(student, isEditing), form_data, {
+                headers: {
+                  'content-type': 'multipart/form-data'
+                }
+            });
+        } catch (err) {
+            console.log(err.response?.data || err);
+        }
+    }
+
+    const buildUploadPath = (student, isEditing) => {
+        const sufixPath = (isEditing && student.publicId !== null && student.publicId !== "") ? "/"+student.publicId : "";
+        return  "/v1/students/"+student.id+"/upload"+ sufixPath
     }
 
     useEffect(() => {
