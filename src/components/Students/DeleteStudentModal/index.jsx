@@ -1,8 +1,22 @@
 import { DialogContentText } from '@mui/material';
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import CustomDialog from '../../../commons/CustomDialog';
+import { deleteStudent } from '../../../core/students/thunks';
 
-const DeletStudentModal = ({open, selectedStudent, handleClose, handleAccept}) => {
+const DeletStudentModal = ({open, setOpen, selectedStudent, showAll}) => {
+
+    const dispatch = useDispatch();
+
+    const handleAccept = () => {
+        const id = selectedStudent.id;
+        dispatch(deleteStudent(id, showAll));
+        setOpen(false);
+    }
+
+    const handleClose = () => {
+        setOpen(false);
+    }
 
     const BodyComponent = () => {
         return (

@@ -23,7 +23,7 @@ export const getStudents = (showAll) => async dispatch => {
     }
 }
 
-export const createStudent = (student, file) => async dispatch => {
+export const createStudent = (student, file, showAll) => async dispatch => {
     try {
         const { data } = await services.createStudent(student)
         if(file !== undefined) {
@@ -33,11 +33,11 @@ export const createStudent = (student, file) => async dispatch => {
     } catch (error) {
         dispatch(createStudentFailure(error));
     } finally {
-        dispatch(getStudents(false));
+        dispatch(getStudents(showAll));
     }
 }
 
-export const updateStudent = (student, file) => async dispatch => {
+export const updateStudent = (student, file, showAll) => async dispatch => {
     try {
         const { data } = await services.updateStudent(student);
         if(file !== undefined) {
@@ -47,18 +47,18 @@ export const updateStudent = (student, file) => async dispatch => {
     } catch (error) {
         dispatch(updateStudentFailure(error));
     } finally {
-        dispatch(getStudents(false));
+        dispatch(getStudents(showAll));
     }
 }
 
-export const deleteStudent = (id) => async dispatch => {
+export const deleteStudent = (id, showAll) => async dispatch => {
     try {
         const { data } = await services.deleteStudent(id);
         dispatch(deleteStudentSuccess(data));
     } catch (error) {
         dispatch(deleteStudentFailure(error));
     } finally {
-        dispatch(getStudents(false));
+        dispatch(getStudents(showAll));
     }
 }
 

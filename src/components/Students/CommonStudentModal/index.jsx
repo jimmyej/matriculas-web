@@ -7,14 +7,31 @@ import styled from '@emotion/styled';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment"
+import { createStudent, updateStudent } from "../../../core/students/thunks"
+import { useDispatch } from "react-redux"
 
-const CommonStudentModal = ({open, selectedStudent, handleClose, handleAccept, action}) => {
+const CommonStudentModal = ({open, setOpen, selectedStudent, setSelectedStudent, showAll, action}) => {
 
+    const dispatch = useDispatch();
     const disableInput = action === "View" ? true : false;
 
     const Input = styled('input')({
         display: 'none',
     });
+
+    const handleAccept = (student, file) => {
+        if(action === "Create") {
+            dispatch(createStudent(student, file, showAll));
+        } else if(action === "Edit") {
+            dispatch(updateStudent(student, file, showAll))
+        }
+        setOpen(false);
+        setSelectedStudent({});
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    }
 
     const BodyComponent = ({handleClose, handleAccept}) => {
 

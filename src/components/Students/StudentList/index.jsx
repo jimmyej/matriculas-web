@@ -2,16 +2,10 @@ import { Box, Button, Container, FormControl, FormControlLabel, Icon, IconButton
 import React, { useState } from 'react'
 import DeletStudentModal from '../DeleteStudentModal';
 import CommonStudentModal from '../CommonStudentModal';
-
 import { visuallyHidden } from '@mui/utils';
-
 import moment from 'moment';
-import { useDispatch } from 'react-redux';
-import { createStudent, deleteStudent, updateStudent } from '../../../core/students/thunks';
 
 const StudentList = ({ rows, columns, showAll, setShowAll }) => {
-
-    const dispatch = useDispatch();
 
     const [selectedStudent, setSelectedStudent] = useState({});
 
@@ -26,53 +20,26 @@ const StudentList = ({ rows, columns, showAll, setShowAll }) => {
     };
 
     //Create modal
-    const [openCreate, setOpenCreate] = useState(false);
-
-    const handleCloseCreate = () => {
-        setOpenCreate(false);
-    };
-
-    const handleAcceptCreate = (student, file) => {
-        dispatch(createStudent(student, file));
-
-        setOpenCreate(false);
-        setSelectedStudent({});
-    };
+    const [openCreateModal, setOpenCreateModal] = useState(false);
 
     const handleClickOpenCreateModal = () => {
-        setOpenCreate(true);
+        setOpenCreateModal(true);
     };
 
     //Edit modal
-    const [openEdit, setOpenEdit] = useState(false);
+    const [openEditModal, setOpenEditModal] = useState(false);
 
     const handleClickOpenEditModal = (row) => {
         setSelectedStudent(row)
-        setOpenEdit(true);
-    };
-
-    const handleCloseEdit = () => {
-        setOpenEdit(false);
-        setSelectedStudent({});
-    };
-
-    const handleAcceptEdit = (student, file) => {
-        dispatch(updateStudent(student, file))
-        setOpenEdit(false);
-        setSelectedStudent({});
+        setOpenEditModal(true);
     };
 
     //View modal
-    const [openView, setOpenView] = useState(false);
+    const [openViewModal, setOpenViewModal] = useState(false);
 
     const handleClickOpenViewModal = (row) => {
         setSelectedStudent(row)
-        setOpenView(true);
-    };
-
-    const handleCloseView = () => {
-        setOpenView(false);
-        setSelectedStudent({});
+        setOpenViewModal(true);
     };
 
     //Delete modal
@@ -81,17 +48,6 @@ const StudentList = ({ rows, columns, showAll, setShowAll }) => {
     const handleClickOpenDeleteModal = (row) => {
         setSelectedStudent(row);
         setOpenDeleteModal(true);
-    };
-
-    const handleCloseDeleteModal = () => {
-        setOpenDeleteModal(false);
-    };
-
-    const handleAcceptDeleteModal = () => {
-        const id = selectedStudent.id;
-        dispatch(deleteStudent(id));
-        setOpenDeleteModal(false);
-        setSelectedStudent({});
     };
 
     //pagination
@@ -269,30 +225,32 @@ const StudentList = ({ rows, columns, showAll, setShowAll }) => {
 
                     <DeletStudentModal
                         open={openDeleteModal}
-                        selectedStudent={selectedStudent}   
-                        handleClose={handleCloseDeleteModal}
-                        handleAccept={handleAcceptDeleteModal}
+                        setOpen={setOpenDeleteModal}
+                        selectedStudent={selectedStudent}
+                        showAll={showAll}
                     />
 
                     <CommonStudentModal
-                        open={openCreate}
-                        handleClose={handleCloseCreate}
-                        handleAccept={handleAcceptCreate}
+                        open={openCreateModal}
+                        setOpen={setOpenCreateModal}
+                        setSelectedStudent={setSelectedStudent}
+                        showAll={showAll}
                         action="Create"
                     />
 
                     <CommonStudentModal
-                        open={openEdit}
+                        open={openEditModal}
+                        setOpen={setOpenEditModal}
                         selectedStudent={selectedStudent}
-                        handleClose={handleCloseEdit}
-                        handleAccept={handleAcceptEdit}
+                        setSelectedStudent={setSelectedStudent}
+                        showAll={showAll}
                         action="Edit"
                     />
 
                     <CommonStudentModal
-                        open={openView}
+                        open={openViewModal}
+                        setOpen={setOpenViewModal}
                         selectedStudent={selectedStudent}
-                        handleClose={handleCloseView}
                         action="View"
                     />
 

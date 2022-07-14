@@ -11,7 +11,7 @@ const deleteStudent = (id) => axios.delete("/v1/students/"+id);
 const uploadStudentPhoto = (student, file, isEditing) => {
     try {
         let form_data = new FormData();
-        form_data.append('file', file, "testFileName");
+        form_data.append('file', file);
 
         axios.post(buildUploadPath(student, isEditing), form_data, {
             headers: {
