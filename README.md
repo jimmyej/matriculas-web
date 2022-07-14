@@ -4,7 +4,10 @@
 
 In the project directory, you can run:
 
-### `npm start`
+### For production environment:
+#### `npm run start`
+### For local environment:
+#### `npm run start:local`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.

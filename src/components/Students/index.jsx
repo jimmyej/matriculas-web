@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react'
 import StudentList from './StudentList'
 
-import apiClient from "../../http-common";
+import axios from "../../axiosInstance";
+import { useDispatch, useSelector } from 'react-redux';
+import { getStudentsSelector } from '../../core/students/selectors';
+import { getStudents } from '../../core/students/thunks';
 
 const Students = () => {
 
     const [allStudents, setAllStudents] = useState([])
     const [showAll, setShowAll] = useState(false)
 
+    const dispatch = useDispatch();
+    const students = useSelector(state => getStudentsSelector(state))
+
     const getAllStudents = async() => {
         try {
-            const res = await apiClient.get(`/v1/students?showAll=${showAll}`);
+            const res = await axios.get(`/v1/students?showAll=${showAll}`);
             const result = res.data
             setAllStudents(result);
         } catch (err) {
@@ -20,7 +26,7 @@ const Students = () => {
 
     const createStudent = async(student, file = undefined) => {
         try {
-            await apiClient.post("/v1/students", student)
+            await axios.post("/v1/students", student)
             .then(response => {
                 if(file !== undefined) {
                     uploadStudentPhoto(response.data, file, false)
@@ -37,7 +43,7 @@ const Students = () => {
 
     const editStudent = async(student, file = undefined) => {
         try {
-            await apiClient.put("/v1/students/"+student.id, student);
+            await axios.put("/v1/students/"+student.id, student);
             if(file !== undefined) {
                 await uploadStudentPhoto(student, file, true)
             }
@@ -51,7 +57,7 @@ const Students = () => {
 
     const deleteStudentById = async(id) => {
         try {
-            await apiClient.delete("/v1/students/"+id);
+            await axios.delete("/v1/students/"+id);
             getAllStudents()
         } catch (err) {
             console.log(err.response?.data || err);
@@ -63,7 +69,7 @@ const Students = () => {
             let form_data = new FormData();
             form_data.append('file', file, "testFileName");
     
-            await apiClient.post(buildUploadPath(student, isEditing), form_data, {
+            await axios.post(buildUploadPath(student, isEditing), form_data, {
                 headers: {
                   'content-type': 'multipart/form-data'
                 }
@@ -79,8 +85,10 @@ const Students = () => {
     }
 
     useEffect(() => {
-        getAllStudents()
-    }, [showAll])
+        //getAllStudents()
+        dispatch(getStudents(showAll));
+        console.log("useEffect");
+    }, [dispatch, showAll])
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 70, align: 'left'},
@@ -105,7 +113,7 @@ const Students = () => {
         <>
             <h1>Welcome students!</h1>
             <StudentList 
-                rows={allStudents}
+                rows={students}
                 columns={columns}
                 handleDeleteById={deleteStudentById}
                 handleCreate={createStudent}

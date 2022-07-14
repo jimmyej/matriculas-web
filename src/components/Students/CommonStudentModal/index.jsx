@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { Avatar, Button, FormControl, FormControlLabel, Grid, Icon, InputLabel, MenuItem, Select, Switch, TextField } from '@mui/material';
-import CustomDialog from '../../../commons/CustomDialog';
-import PropTypes from 'prop-types';
-
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import moment from 'moment';
-import { deepPurple } from '@mui/material/colors';
+import { Avatar, Button, FormControl, FormControlLabel, Grid, Icon, InputLabel, MenuItem, Select, Switch, TextField } from "@mui/material"
+import { deepPurple } from "@mui/material/colors"
+import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers"
+import React, { useEffect, useState } from "react"
+import CustomDialog from "../../../commons/CustomDialog"
 import styled from '@emotion/styled';
+import PropTypes from 'prop-types';
+import moment from 'moment';
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment"
 
-const CreateStudentModal = ({open, handleClose, handleAccept }) => {
+const CommonStudentModal = ({open, selectedStudent, handleClose, handleAccept, action}) => {
+
+    const disableInput = action === "View" ? true : false;
 
     const Input = styled('input')({
         display: 'none',
@@ -27,10 +27,11 @@ const CreateStudentModal = ({open, handleClose, handleAccept }) => {
             email: "",
             status: true
         }
-    
-        const [student, setStudent] = useState(initialStudentState);
+
+        const [student, setStudent] = useState(selectedStudent ? selectedStudent : initialStudentState);
         const [file, setFile] = useState(null);
         const [preview, setPreview] = useState();
+
 
         const handleInputChange = event => {
             const { name, value } = event.target;
@@ -46,7 +47,7 @@ const CreateStudentModal = ({open, handleClose, handleAccept }) => {
             setStudent({ ...student, 'birthDate': event._d });
         };
 
-        const handleInputFile = event => {
+        const handleInputFileChange = event => {
             setFile(event.target.files[0]);
         }
 
@@ -60,6 +61,13 @@ const CreateStudentModal = ({open, handleClose, handleAccept }) => {
                 email: student.email,
                 status: student.status
             }
+
+            if(action === "Edit") {
+                newStudent.id = student.id;
+                newStudent.urlPhoto = student.urlPhoto;
+                newStudent.publicId = student.publicId;
+            }
+
             handleAccept(newStudent, file);
             setStudent(initialStudentState)
         }
@@ -77,44 +85,46 @@ const CreateStudentModal = ({open, handleClose, handleAccept }) => {
             // free memory when ever this component is unmounted
             return () => URL.revokeObjectURL(objectUrl)
         }, [file])
-        
+
         return (
             <>
                 <Grid container spacing={2}>
                     <Grid item xs={6}>
                         <TextField
+                            disabled ={disableInput}
                             margin="dense"
                             id="firstName"
+                            name="firstName"
                             label="First Name"
                             type="text"
                             fullWidth
                             variant="standard"
-                            name="firstName"
                             value={student.firstName}
                             onChange={handleInputChange}
-                            required
                         />
                         <TextField
+                            disabled ={disableInput}
                             margin="dense"
                             id="lastName"
+                            name="lastName"
                             label="Last Name"
                             type="text"
                             fullWidth
                             variant="standard"
-                            name="lastName"
                             value={student.lastName}
                             onChange={handleInputChange}
                         />
                         <FormControl fullWidth variant="standard" >
                             <InputLabel id="doc-type-select-label">Doc type</InputLabel>
                             <Select
+                                disabled ={disableInput}
                                 labelId="doc-type-select-label"
                                 id="doc-type-select"
-                                label="Doc type"
-                                variant="standard"
                                 name="docType"
                                 defaultValue=""
                                 value={student.docType}
+                                label="Doc type"
+                                variant="standard"
                                 onChange={handleInputChange}
                             >
                                 <MenuItem value={'DNI'}>DNI</MenuItem>
@@ -123,19 +133,20 @@ const CreateStudentModal = ({open, handleClose, handleAccept }) => {
                             </Select>
                         </FormControl>
                         <TextField
+                            disabled ={disableInput}
                             margin="dense"
                             id="docNumber"
+                            name="docNumber"
                             label="Doc number"
                             type="number"
                             fullWidth
                             variant="standard"
-                            name="docNumber"
                             value={student.docNumber}
                             onChange={handleInputChange}
                         />
-
                         <LocalizationProvider dateAdapter={AdapterMoment}>
                             <DesktopDatePicker
+                                disabled ={disableInput}
                                 label="Birthdate"
                                 inputFormat="yyyy-MM-DD"
                                 name="birthDate"
@@ -146,51 +157,57 @@ const CreateStudentModal = ({open, handleClose, handleAccept }) => {
                         </LocalizationProvider>
                     </Grid>
                     <Grid item xs={6} sx={{ margin: "auto", padding: "auto", verticalAlign: "middle", textAlign: "center" }}>
-                        <Avatar alt="Photo" sx={{ bgcolor: deepPurple[500], width: 200, height: 200, margin: "auto"}}  src={preview} />
-                        <label htmlFor="icon-button-file">
-                            <Input accept="image/*" id="icon-button-file" type="file" onChange={handleInputFile}/>
-                            <Button
-                                component="span"
-                                style={{width: "200px", marginTop: "10px"}}
-                                variant="contained" 
-                                color="success"
-                                endIcon={<Icon fontSize="small">photo_camera</Icon>}>
-                                Upload
-                            </Button>
-                        </label>
+                        <Avatar alt="Photo" sx={{ bgcolor: deepPurple[500], width: 200, height: 200, margin: "auto"}} src={preview || student.urlPhoto} />
+                        {
+                            !disableInput && 
+                            <label htmlFor="photo">
+                                <Input accept="image/*" id="photo" type="file" onChange={handleInputFileChange}/>
+                                <Button
+                                    component="span"
+                                    style={{width: "200px", marginTop: "10px"}}
+                                    variant="contained" 
+                                    color="success"
+                                    endIcon={<Icon fontSize="small">photo_camera</Icon>}>
+                                    Upload
+                                </Button>
+                            </label>
+                        }
                     </Grid>
                     <Grid item xs={12}>
                         <TextField
+                            disabled ={disableInput}
                             margin="dense"
                             id="email"
+                            name="email"
                             label="E-mail"
                             type="text"
                             fullWidth
                             variant="standard"
-                            name="email"
                             value={student.email}
                             onChange={handleInputChange}
                         />
                     </Grid>
                     <Grid item xs={12}>
                         <FormControlLabel
+                            name="status"
                             control={
-                                <Switch
-                                    name="status"
+                                <Switch 
+                                    disabled ={disableInput}
                                     checked={student.status}
                                     onChange={handleInputStatusChange}
                                 />
                             } 
                             label="Status"
-                            labelPlacement="start"
                         />
                     </Grid>
                 </Grid>
 
                 <FormControl fullWidth variant="standard" >
                     <div>
-                        <Button  style={{float: 'right'}} onClick={submitStudent}>Aceptar</Button>
-                        <Button  style={{float: 'right'}} onClick={handleClose}>Cancelar</Button>
+                        {
+                            action !== 'View' && <Button style={{float: 'right'}} onClick={submitStudent}>Aceptar</Button>
+                        }
+                        <Button style={{float: 'right'}} onClick={handleClose}>{action === 'View' ? 'Close' : 'Cancel'}</Button>
                     </div>
                 </FormControl>
             </>
@@ -200,19 +217,21 @@ const CreateStudentModal = ({open, handleClose, handleAccept }) => {
     return (
         <CustomDialog
             open={open}
-            title="Create student"
+            title={action + " student"}
             bodyComponent={
-                <BodyComponent handleClose={handleClose} handleAccept={handleAccept}/>
+                <BodyComponent handleClose={handleClose}  handleAccept={handleAccept}/>
             }
             hideAction={true}
         />
     )
 }
 
-export default CreateStudentModal
+export default CommonStudentModal
 
-CreateStudentModal.propTypes = {
-    open: PropTypes.bool,
+CommonStudentModal.propTypes = {
+    open: PropTypes.bool, 
+    selectedStudent: PropTypes.object,
     handleClose: PropTypes.func,
     handleAccept: PropTypes.func,
+    action: PropTypes.string
 };

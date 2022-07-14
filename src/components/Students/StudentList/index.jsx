@@ -1,8 +1,7 @@
 import { Box, Button, Container, FormControl, FormControlLabel, Icon, IconButton, InputAdornment, Paper, Switch, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, TableSortLabel, TextField, Toolbar, Typography } from '@mui/material'
 import React, { useState } from 'react'
-import CreateStudentModal from '../CreateStudentModal';
 import DeletStudentModal from '../DeleteStudentModal';
-import EditStudentModal from '../EditStudentModal';
+import CommonStudentModal from '../CommonStudentModal';
 
 import { visuallyHidden } from '@mui/utils';
 
@@ -12,23 +11,31 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
 
     const [selectedStudent, setSelectedStudent] = useState({});
 
-    //Delete modal
-    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    //search
+    const [searchText, setSearchText] = useState("");
 
-    const handleClickOpen = (row) => {
-        setSelectedStudent(row);
-        setOpenDeleteModal(true);
+    const data = {
+        rows: rows.filter((item) =>
+            item.docNumber.includes(searchText) ||
+            item.birthDate.includes(searchText)
+        ),
     };
 
-    const handleCloseDeleteModal = () => {
-        setOpenDeleteModal(false);
+    //Create modal
+    const [openCreate, setOpenCreate] = useState(false);
+
+    const handleCloseCreate = () => {
+        setOpenCreate(false);
     };
 
-    const handleAcceptDeleteModal = () => {
-        const id = selectedStudent.id;
-        handleDeleteById(id);
-        setOpenDeleteModal(false);
+    const handleAcceptCreate = (student, file) => {
+        handleCreate(student, file)
+        setOpenCreate(false);
         setSelectedStudent({});
+    };
+
+    const handleClickOpenCreateModal = () => {
+        setOpenCreate(true);
     };
 
     //Edit modal
@@ -50,31 +57,36 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
         setSelectedStudent({});
     };
 
-    //search
-    const [searchText, setSearchText] = useState("");
+    //View modal
+    const [openView, setOpenView] = useState(false);
 
-    const data = {
-        rows: rows.filter((item) =>
-          item.docNumber.includes(searchText) ||
-          item.birthDate.includes(searchText)
-        ),
+    const handleClickOpenViewModal = (row) => {
+        setSelectedStudent(row)
+        setOpenView(true);
     };
 
-    //Create modal
-    const [openCreate, setOpenCreate] = useState(false);
-
-    const handleCloseCreate = () => {
-        setOpenCreate(false);
-    };
-
-    const handleAcceptCreate = (student, file) => {
-        handleCreate(student, file)
-        setOpenCreate(false);
+    const handleCloseView = () => {
+        setOpenView(false);
         setSelectedStudent({});
     };
 
-    const handleClickOpenCreateModal = () => {
-        setOpenCreate(true);
+    //Delete modal
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
+    const handleClickOpen = (row) => {
+        setSelectedStudent(row);
+        setOpenDeleteModal(true);
+    };
+
+    const handleCloseDeleteModal = () => {
+        setOpenDeleteModal(false);
+    };
+
+    const handleAcceptDeleteModal = () => {
+        const id = selectedStudent.id;
+        handleDeleteById(id);
+        setOpenDeleteModal(false);
+        setSelectedStudent({});
     };
 
     //pagination
@@ -210,7 +222,7 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
                                         <TableCell align="left">{row.email}</TableCell>
                                         <TableCell align="left">{row.status?<Icon color="success">toggle_on</Icon>:<Icon color="error">toggle_off</Icon>}</TableCell>
                                         <TableCell align="right">
-                                            <IconButton color="secondary" aria-label="view student" component="span">
+                                            <IconButton color="secondary" aria-label="view student" component="span" onClick={() => handleClickOpenViewModal(row)}>
                                                 <Icon fontSize="small">visibility</Icon>
                                             </IconButton>
                                             <IconButton color="primary" aria-label="edit student" component="span" onClick={() => handleClickOpenEditModal(row)}>
@@ -257,17 +269,26 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
                         handleAccept={handleAcceptDeleteModal}
                     />
 
-                    <EditStudentModal
+                    <CommonStudentModal
+                        open={openCreate}
+                        handleClose={handleCloseCreate}
+                        handleAccept={handleAcceptCreate}
+                        action="Create"
+                    />
+
+                    <CommonStudentModal
                         open={openEdit}
                         selectedStudent={selectedStudent}
                         handleClose={handleCloseEdit}
                         handleAccept={handleAcceptEdit}
+                        action="Edit"
                     />
 
-                    <CreateStudentModal
-                        open={openCreate}
-                        handleClose={handleCloseCreate}
-                        handleAccept={handleAcceptCreate}
+                    <CommonStudentModal
+                        open={openView}
+                        selectedStudent={selectedStudent}
+                        handleClose={handleCloseView}
+                        action="View"
                     />
 
                 </Paper>
