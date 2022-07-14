@@ -9,3 +9,8 @@ export const getStudentsSelector = createSelector(
     state => state.studentsReducer,
     ({students}) => students
 )
+
+export const getStudentSelector = createSelector(
+    state => state.studentsReducer,
+    ({student}) => student
+)

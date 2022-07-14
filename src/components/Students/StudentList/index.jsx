@@ -6,8 +6,12 @@ import CommonStudentModal from '../CommonStudentModal';
 import { visuallyHidden } from '@mui/utils';
 
 import moment from 'moment';
+import { useDispatch } from 'react-redux';
+import { createStudent, deleteStudent, updateStudent } from '../../../core/students/thunks';
 
-const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit, showAll, setShowAll }) => {
+const StudentList = ({ rows, columns, showAll, setShowAll }) => {
+
+    const dispatch = useDispatch();
 
     const [selectedStudent, setSelectedStudent] = useState({});
 
@@ -29,7 +33,8 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
     };
 
     const handleAcceptCreate = (student, file) => {
-        handleCreate(student, file)
+        dispatch(createStudent(student, file));
+
         setOpenCreate(false);
         setSelectedStudent({});
     };
@@ -52,7 +57,7 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
     };
 
     const handleAcceptEdit = (student, file) => {
-        handleEdit(student, file)
+        dispatch(updateStudent(student, file))
         setOpenEdit(false);
         setSelectedStudent({});
     };
@@ -73,7 +78,7 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
     //Delete modal
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
-    const handleClickOpen = (row) => {
+    const handleClickOpenDeleteModal = (row) => {
         setSelectedStudent(row);
         setOpenDeleteModal(true);
     };
@@ -84,7 +89,7 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
 
     const handleAcceptDeleteModal = () => {
         const id = selectedStudent.id;
-        handleDeleteById(id);
+        dispatch(deleteStudent(id));
         setOpenDeleteModal(false);
         setSelectedStudent({});
     };
@@ -228,7 +233,7 @@ const StudentList = ({ rows, columns, handleDeleteById, handleCreate, handleEdit
                                             <IconButton color="primary" aria-label="edit student" component="span" onClick={() => handleClickOpenEditModal(row)}>
                                                 <Icon fontSize="small">edit</Icon>
                                             </IconButton>
-                                            <IconButton color="error" aria-label="delete student" component="span" onClick={() => handleClickOpen(row)} disabled={!row.status}>
+                                            <IconButton color="error" aria-label="delete student" component="span" onClick={() => handleClickOpenDeleteModal(row)} disabled={!row.status}>
                                                 <Icon fontSize="small">delete</Icon>
                                             </IconButton>
                                         </TableCell>

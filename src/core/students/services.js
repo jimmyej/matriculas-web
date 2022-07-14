@@ -19,7 +19,7 @@ const uploadStudentPhoto = (student, file, isEditing) => {
             }
         });
     } catch (err) {
-        console.log(err.response?.data || err);
+        console.log(err);
     }
 }
 
